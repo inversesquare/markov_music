@@ -21,6 +21,7 @@ public class Mp3Wrapper {
     private static int bufferSize = 4096;
     private int _frameCount;
     private int _bufferLength;
+    private int _sampleFrequency = 44100;
     
     public Mp3Wrapper(String file_name, LogWriter log, int max_seconds)
     {
@@ -60,6 +61,7 @@ public class Mp3Wrapper {
                     if (!seeking) {
                         output = (SampleBuffer) decoder.decodeFrame(frameHeader, bitstream);
                         _bufferLength = output.getBufferLength() > _bufferLength ? output.getBufferLength() : _bufferLength;
+                        _sampleFrequency = output.getSampleFrequency();
                         if (output.getSampleFrequency() != 44100)
                         {
                             _log.write("Warning: sample frequency is " + output.getSampleFrequency());
@@ -157,6 +159,11 @@ public class Mp3Wrapper {
     public int size()
     {
         return _data_left.length;
+    }
+    
+    public int sampleFrequency()
+    {
+        return _sampleFrequency;
     }
 
 }

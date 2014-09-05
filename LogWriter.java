@@ -6,7 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 public class LogWriter {
-    private BufferedWriter log_writer;
+    protected BufferedWriter log_writer;
     
     public LogWriter(String log_file_path) {
         File log_file = new File(log_file_path);

@@ -10,7 +10,7 @@ public class DataWriter extends LogWriter {
         write(s);
     }
     
-    static private String join(List<String> list, String delimiter)
+    static public String join(List<String> list, String delimiter)
     {
        StringBuilder sb = new StringBuilder();
        boolean initial_iteration = true;

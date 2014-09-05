@@ -1,5 +1,7 @@
 package markov_music;
 
+import java.util.Arrays;
+
 public class MarkovMusic {
     
     // http://stackoverflow.com/questions/22114699/decode-mp3-file-with-jlayer-on-android-devices
@@ -9,10 +11,11 @@ public class MarkovMusic {
         String input_path = "D:\\data\\demo\\markov_music\\input\\";
         String output_path = "D:\\data\\demo\\markov_music\\output\\";
         
-//        String file_in = input_path + "440Hz_44100Hz_16bit_05sec.mp3";
-        String file_in = input_path + "Handel - Water Music Suite.mp3";
+        String file_in = input_path + "440hz.mp3";
+//        String file_in = input_path + "Handel - Water Music Suite.mp3";
         String file_out = output_path + "output.mp3";
         String log_file = output_path + "log.txt";
+        String data_file = output_path + "fft.txt";
         
         LogWriter log = new LogWriter(log_file);
         
@@ -22,8 +25,55 @@ public class MarkovMusic {
         
         short [] data = mp3.data_left();
         
+        int chunkSize = 8192;
+        try {
+            PowerSpectrumWaterfall psw = new PowerSpectrumWaterfall(data, mp3.sampleFrequency(), chunkSize);
+            DataWriter dw = new DataWriter(data_file, Arrays.asList("Frequency", "Power"));
+            double [] sample = psw.GetOneSpectra(10);
+            double [] freq = psw.GetFrequency();
+            for (int i = 0; i < sample.length; i++)
+            {
+                dw.write(DataWriter.join(Arrays.asList(format(freq[i]), format(sample[i])), "\t"));
+            }
+            dw.close();
+        } catch (Exception ex)
+        {
+            log.write(ex.getMessage());
+        }
+        
+
+/*
+        int N = 4096;
+        double [] test = new double[N];
+        for (int i = 0; i < N; i++)
+        {
+            test[i] = (double)data[i+(N*3)];
+        }
+        
+        DataWriter dw = new DataWriter(data_file, Arrays.asList("Real", "Imaginary", "Power"));
+        double [] fft = FastFourierTransform.four1(test, FastFourierTransform.FORWARD_TRANSFORM);
+
+        for (int i = 0; i < (fft.length / 2); i++)
+        {
+            double real = fft[i*2];
+            double imag = fft[(i*2)+1];
+            double pow = Math.sqrt((real * real) + (imag * imag));
+            dw.write(
+                    DataWriter.join(
+                            Arrays.asList(format(real), format(imag), format(pow)),
+                            "\t")
+                    );
+        }
+        dw.close();
+        */
+        
         log.close();
 
+    }
+    
+    private static String format(double x)
+    {
+        return String.format("%014.4f", x);
     }
 
 }
