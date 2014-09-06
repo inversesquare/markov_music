@@ -16,6 +16,7 @@ public class MarkovMusic {
         String file_out = output_path + "output.mp3";
         String log_file = output_path + "log.txt";
         String data_file = output_path + "fft.txt";
+        String image_file = output_path + "waterfall.jpg";
         
         LogWriter log = new LogWriter(log_file);
         
@@ -36,11 +37,11 @@ public class MarkovMusic {
                 dw.write(DataWriter.join(Arrays.asList(format(freq[i]), format(sample[i])), "\t"));
             }
             dw.close();
+            WaterfallImage wfi = new WaterfallImage(psw, 1, image_file, log);
         } catch (Exception ex)
         {
             log.write(ex.getMessage());
         }
-        
 
 /*
         int N = 4096;
