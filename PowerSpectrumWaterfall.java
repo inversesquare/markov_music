@@ -3,7 +3,13 @@ package markov_music;
 public class PowerSpectrumWaterfall {
     
     private double [][] spectra;
+    private double [][] spectra_log;
     private double [] freq;
+    private double [] freq_log;
+    // Passed in by user to set bounds on logarithmic frequency resize
+    private double freq_log_min;
+    private double freq_log_max;
+    private int num_freq_log;
     private double [] time;
     private int chunk_size;
     private int spectra_size;
@@ -12,26 +18,42 @@ public class PowerSpectrumWaterfall {
     private double max_power;
     private double min_power;
     
-    public PowerSpectrumWaterfall(short [] data, double sampling_frequency_in, int chunk_size_in)
+    public PowerSpectrumWaterfall(
+            short [] data,
+            double sampling_frequency_in,
+            int chunk_size_in,
+            int num_freq_log_in,
+            double freq_min,
+            double freq_max)
     {
+        num_freq_log = num_freq_log_in;
         chunk_size = chunk_size_in;
         spectra_size = chunk_size / 2;
         sampling_frequency = sampling_frequency_in;
         max_power = 0.0;
         min_power = 1000000.0;
+        freq_log_max = freq_max;
+        freq_log_min = freq_min;
         
         if (!FastFourierTransform.IsPowerOfTwo(chunk_size) || chunk_size < 8) {
             throw new IllegalArgumentException("Input data must be an array with a power of two length.");
+        }
+        
+        if (freq_min <= 0.0)
+        {
+            throw new IllegalArgumentException("Minimum frequency must be a positive, nonzero number.");
         }
         
         // 50% overlap of the chunks makes for a smooth waterfall
         // The last chunk will be padded with zeroes
         num_chunks = (2 * (data.length / chunk_size)) + 1;
         spectra = new double[num_chunks][spectra_size];
+        spectra_log = new double[num_chunks][num_freq_log];
         
         double [] tmp_data = new double[chunk_size];
         double [] tmp_pow = new double[spectra_size];
         freq = new double[spectra_size];
+        freq_log = new double[num_freq_log];
         time = new double[num_chunks];
         double [] fft = null;
         int idx = 0;
@@ -86,7 +108,74 @@ public class PowerSpectrumWaterfall {
                     min_power = spectra[i][j];
                 }
             }
+            
+            // Resize the result into a log array
+            PopulateLogSpectra(i);
         }
+    }
+    
+    private void PopulateLogSpectra(int chunk_num)
+    {
+        double [] source = spectra[chunk_num];
+        // keep track of the number of data from source that get binned
+        // into the spectra_log column so we can normalize it out later
+        double [] freq_log_counter = new double[freq_log.length];
+        
+        double max_freq_log = Math.log10(freq_log_max);
+        double min_freq_log = Math.log10(freq_log_min);
+        double delta = (max_freq_log - min_freq_log) / (freq_log.length);
+        
+        // Populate the new frequency array in log space
+        for (int j = 0; j < freq_log.length; j++)
+        {
+            freq_log[j] = j * delta;
+        }
+        
+        // For each data in the source, find the appropriate bin
+        // in freq_log and spectra_log
+        double tmp = 0.0;
+        int bin = 0;
+        for (int j = 0; j < source.length; j++)
+        {
+            if (freq[j] <= 0.0)
+            {
+                continue;
+            }
+            tmp = Math.log10(freq[j]);
+            bin = (int)((tmp - min_freq_log)/delta);
+            if (bin >= 0 && bin < freq_log.length)
+            {
+                spectra_log[chunk_num][bin] += source[j];
+                freq_log_counter[bin] += 1;
+            }
+        }
+        
+        // Now normalize the values
+        double first_nonzero = 0.0;
+        for (int j = 0; j < freq_log_counter.length; j++)
+        {
+            if (freq_log_counter[j] > 1) {
+                spectra_log[chunk_num][j] /= freq_log_counter[j];
+            }
+            
+            if (first_nonzero == 0.0 && spectra_log[chunk_num][j] != 0.0)
+            {
+                first_nonzero = spectra_log[chunk_num][j];
+            }
+        }
+        
+        // Fill in missing values with the nearest neighbor
+        for (int j = 0; j < freq_log_counter.length; j++)
+        {
+            if (spectra_log[chunk_num][j] == 0.0)
+            {
+                spectra_log[chunk_num][j] = first_nonzero;
+            } else
+            {
+                first_nonzero = spectra_log[chunk_num][j];
+            }
+        }
+        
     }
     
     public int GetChunkSize()
@@ -99,6 +188,11 @@ public class PowerSpectrumWaterfall {
         return spectra_size;
     }
     
+    public int GetSpectraLogSize()
+    {
+        return num_freq_log;
+    }
+    
     public int GetNumChunks()
     {
         return num_chunks;
@@ -109,9 +203,19 @@ public class PowerSpectrumWaterfall {
         return spectra[i].clone();
     }
     
+    public double[] GetOneLogSpectra(int i)
+    {
+        return spectra_log[i].clone();
+    }
+    
     public double[] GetFrequency()
     {
         return freq.clone();
+    }
+    
+    public double[] GetLogFrequency()
+    {
+        return freq_log.clone();
     }
     
     public double[] GetTime()

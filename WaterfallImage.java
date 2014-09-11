@@ -33,7 +33,7 @@ public class WaterfallImage {
         log = log_in;
         ppg = pixels_per_grid_spacing;
         width = psw.GetNumChunks();
-        height = psw.GetSpectraSize();
+        height = psw.GetSpectraLogSize();
         
         grid = new int[NUM_COLOR_CHANNELS][width][height];
         
@@ -118,7 +118,7 @@ public class WaterfallImage {
 
         for (int gcol = 0; gcol < width; gcol++)
         {
-            oneCol = psw.GetOneSpectra(gcol);
+            oneCol = psw.GetOneLogSpectra(gcol);
             for (int grow = 0; grow < height; grow++)
             {
                 // Normalize power to range [0, 1]

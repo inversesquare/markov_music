@@ -12,6 +12,16 @@ public class RainbowColor {
     {
         Color ret = null;
         
+        if (fraction < 0.0)
+        {
+            fraction = 0.0;
+        }
+        
+        if (fraction > 1.0)
+        {
+            fraction = 1.0;
+        }
+        
         if (fraction <= 0.5)
         {
             ret = fadeToHSV(BLUE, GREEN, fraction*2.0);

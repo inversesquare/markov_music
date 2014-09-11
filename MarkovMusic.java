@@ -11,8 +11,8 @@ public class MarkovMusic {
         String input_path = "D:\\data\\demo\\markov_music\\input\\";
         String output_path = "D:\\data\\demo\\markov_music\\output\\";
         
-        String file_in = input_path + "440hz.mp3";
-//        String file_in = input_path + "Handel - Water Music Suite.mp3";
+//        String file_in = input_path + "440hz.mp3";
+        String file_in = input_path + "Handel - Water Music Suite.mp3";
         String file_out = output_path + "output.mp3";
         String log_file = output_path + "log.txt";
         String data_file = output_path + "fft.txt";
@@ -27,11 +27,21 @@ public class MarkovMusic {
         short [] data = mp3.data_left();
         
         int chunkSize = 8192;
+        int num_freq_log = 1280;
+        double freq_min = 110.0;
+        double freq_max = 2000.0;
         try {
-            PowerSpectrumWaterfall psw = new PowerSpectrumWaterfall(data, mp3.sampleFrequency(), chunkSize);
+            PowerSpectrumWaterfall psw = new PowerSpectrumWaterfall(
+                    data,
+                    mp3.sampleFrequency(),
+                    chunkSize,
+                    num_freq_log,
+                    freq_min,
+                    freq_max
+                    );
             DataWriter dw = new DataWriter(data_file, Arrays.asList("Frequency", "Power"));
-            double [] sample = psw.GetOneSpectra(10);
-            double [] freq = psw.GetFrequency();
+            double [] sample = psw.GetOneLogSpectra(10);  // psw.GetOneSpectra(10);
+            double [] freq = psw.GetLogFrequency(); // psw.GetFrequency();
             for (int i = 0; i < sample.length; i++)
             {
                 dw.write(DataWriter.join(Arrays.asList(format(freq[i]), format(sample[i])), "\t"));
