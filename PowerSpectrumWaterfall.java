@@ -1,5 +1,9 @@
 package markov_music;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 public class PowerSpectrumWaterfall {
     
     private double [][] spectra;
@@ -17,6 +21,10 @@ public class PowerSpectrumWaterfall {
     private double sampling_frequency;
     private double max_power;
     private double min_power;
+    private double max_log_power; // max and min for the log/log grid
+    private double min_log_power;
+    private double median_log_power;
+    private double stddev_log_power;
     
     public PowerSpectrumWaterfall(
             short [] data,
@@ -32,6 +40,10 @@ public class PowerSpectrumWaterfall {
         sampling_frequency = sampling_frequency_in;
         max_power = 0.0;
         min_power = 1000000.0;
+        max_log_power = 0.0;
+        min_log_power = 1000000.0;
+        median_log_power = -1.0;
+        stddev_log_power = -1.0;
         freq_log_max = freq_max;
         freq_log_min = freq_min;
         
@@ -44,9 +56,9 @@ public class PowerSpectrumWaterfall {
             throw new IllegalArgumentException("Minimum frequency must be a positive, nonzero number.");
         }
         
-        // 50% overlap of the chunks makes for a smooth waterfall
+        // 75% overlap of the chunks makes for a smooth waterfall
         // The last chunk will be padded with zeroes
-        num_chunks = (2 * (data.length / chunk_size)) + 1;
+        num_chunks = (4 * (data.length / chunk_size)) + 1;
         spectra = new double[num_chunks][spectra_size];
         spectra_log = new double[num_chunks][num_freq_log];
         
@@ -60,11 +72,11 @@ public class PowerSpectrumWaterfall {
         for (int i = 0; i < num_chunks; i++)
         {
             // Only moving half a chunk every step
-            time[i] = (chunk_size / 2.0) * (i / sampling_frequency_in);
+            time[i] = (chunk_size / 4.0) * (i / sampling_frequency_in);
             // Populate this chunk for FFT
             for (int j = 0; j < chunk_size; j++)
             {
-                idx = ((i * chunk_size) / 2) + j;
+                idx = ((i * chunk_size) / 4) + j;
                 if (idx < data.length)
                 {
                     tmp_data[j] = (double)data[idx];
@@ -156,6 +168,14 @@ public class PowerSpectrumWaterfall {
         {
             if (freq_log_counter[j] > 1) {
                 spectra_log[chunk_num][j] /= freq_log_counter[j];
+                if (max_log_power < spectra_log[chunk_num][j])
+                {
+                    max_log_power = spectra_log[chunk_num][j];
+                }
+                if (min_log_power > spectra_log[chunk_num][j])
+                {
+                    min_log_power = spectra_log[chunk_num][j];
+                }
             }
             
             if (first_nonzero == 0.0 && spectra_log[chunk_num][j] != 0.0)
@@ -176,6 +196,59 @@ public class PowerSpectrumWaterfall {
             }
         }
         
+    }
+    
+    public double GetMedianLogPower()
+    {
+        // Don't calculate this more than once
+        if (median_log_power > 0.0)
+        {
+            return median_log_power;
+        }
+        List<Double> tmp = ListifyLogGrid();
+        Collections.sort(tmp);
+        median_log_power = tmp.get((spectra_log[0].length * spectra_log.length) / 2);
+        
+        return median_log_power;
+    }
+    
+    public double GetStdDevLogPower()
+    {
+        // Don't calculate this more than once
+        if (stddev_log_power > 0.0)
+        {
+            return stddev_log_power;
+        }
+        
+        List<Double> tmp = ListifyLogGrid();
+        double mean = 0.0;
+        for (Double d : tmp)
+        {
+            mean += d;
+        }
+        mean /= tmp.size();
+        
+        double variance = 0.0;
+        for (Double d : tmp)
+        {
+            variance += (mean - d)*(mean - d);
+        }
+        variance /= tmp.size();
+        stddev_log_power = Math.sqrt(variance);
+        return stddev_log_power;
+    }
+    
+    private List<Double> ListifyLogGrid()
+    {
+        List<Double> tmp = new ArrayList<Double>(spectra_log[0].length * spectra_log.length);
+        for (int i = 0; i < spectra_log.length; i++)
+        {
+            for (int j = 0; j < spectra_log[0].length; j++)
+            {
+                tmp.add(spectra_log[i][j]);
+            }
+        }
+        return tmp;
     }
     
     public int GetChunkSize()
@@ -231,6 +304,16 @@ public class PowerSpectrumWaterfall {
     public double GetMinPower()
     {
         return min_power;
+    }
+    
+    public double GetMaxLogPower()
+    {
+        return max_log_power;
+    }
+    
+    public double GetMinLogPower()
+    {
+        return min_log_power;
     }
 
 }

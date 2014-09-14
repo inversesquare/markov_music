@@ -1,5 +1,6 @@
 package markov_music;
 
+import java.awt.Color;
 import java.util.Arrays;
 
 public class MarkovMusic {
@@ -53,7 +54,7 @@ public class MarkovMusic {
             log.write(ex.getMessage());
         }
 
-/*
+/*      FFT test
         int N = 4096;
         double [] test = new double[N];
         for (int i = 0; i < N; i++)
@@ -76,6 +77,19 @@ public class MarkovMusic {
                     );
         }
         dw.close();
+        */
+        
+        
+        /* color test
+        String color_test_file = output_path + "color_text.txt";
+        DataWriter dw_color = new DataWriter(color_test_file, Arrays.asList("Value", "Red", "Green", "Blue"));
+        for (int i = 0; i < 100; i++)
+        {
+            double f = i / 100.0;
+            Color c = RainbowColor.GetRainbow(f);
+            dw_color.write(DataWriter.join(Arrays.asList(format(f), format(c.getRed()), format(c.getGreen()), format(c.getBlue())), "\t"));
+        }
+        dw_color.close();
         */
         
         log.close();

@@ -112,17 +112,22 @@ public class WaterfallImage {
     
     private void PopulateGrid() {
         double [] oneCol = null;
-        double delta = psw.GetMaxPower() - psw.GetMinPower();
-        double min = psw.GetMinPower();
+        // Taking the max and min works ok, but does not highlight the dynamic range well
+//        double delta = psw.GetMaxLogPower() - psw.GetMinLogPower();
+//        double min = psw.GetMinLogPower();
+        double delta = psw.GetStdDevLogPower() * 2.0;
+        double min = psw.GetMedianLogPower() - (psw.GetStdDevLogPower() * 1.0);
+        
         double pow = 0.0;
 
         for (int gcol = 0; gcol < width; gcol++)
         {
             oneCol = psw.GetOneLogSpectra(gcol);
+            // Low frequencies go on the "bottom" of the image, so flip
             for (int grow = 0; grow < height; grow++)
             {
                 // Normalize power to range [0, 1]
-                pow = (oneCol[grow] - min) / delta;
+                pow = (oneCol[height - grow - 1] - min) / delta;
                 Color c = RainbowColor.GetRainbow(pow);
                 SetColor(gcol, grow, c);
             }

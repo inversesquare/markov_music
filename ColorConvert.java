@@ -52,6 +52,7 @@ public class ColorConvert {
                 hue = (r - g) / delta + 4;
             }
         }
+        hue /= 6;
     }
     
     // Given HSV, populate the RGB values
