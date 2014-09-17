@@ -140,7 +140,7 @@ public class PowerSpectrumWaterfall {
         // Populate the new frequency array in log space
         for (int j = 0; j < freq_log.length; j++)
         {
-            freq_log[j] = j * delta;
+            freq_log[j] = (j * delta) + min_freq_log;
         }
         
         // For each data in the source, find the appropriate bin

@@ -13,11 +13,14 @@ public class MarkovMusic {
         String output_path = "D:\\data\\demo\\markov_music\\output\\";
         
 //        String file_in = input_path + "440hz.mp3";
-        String file_in = input_path + "Handel - Water Music Suite.mp3";
+//        String file_in = input_path + "Handel - Water Music Suite.mp3";
+        String file_in = input_path + "let_it_go.mp3";
+//        String file_in = input_path + "dragostea.mp3";
         String file_out = output_path + "output.mp3";
         String log_file = output_path + "log.txt";
         String data_file = output_path + "fft.txt";
         String image_file = output_path + "waterfall.jpg";
+        String notes_file = output_path + "notes.txt";
         
         LogWriter log = new LogWriter(log_file);
         
@@ -49,6 +52,7 @@ public class MarkovMusic {
             }
             dw.close();
             WaterfallImage wfi = new WaterfallImage(psw, 1, image_file, log);
+            WaterfallNotes wfn = new WaterfallNotes(psw, notes_file, log);
         } catch (Exception ex)
         {
             log.write(ex.getMessage());

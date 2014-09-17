@@ -115,8 +115,8 @@ public class WaterfallImage {
         // Taking the max and min works ok, but does not highlight the dynamic range well
 //        double delta = psw.GetMaxLogPower() - psw.GetMinLogPower();
 //        double min = psw.GetMinLogPower();
-        double delta = psw.GetStdDevLogPower() * 2.0;
-        double min = psw.GetMedianLogPower() - (psw.GetStdDevLogPower() * 1.0);
+        double delta = psw.GetStdDevLogPower() * 1.5;
+        double min = psw.GetMedianLogPower() - (psw.GetStdDevLogPower() * 0.5);
         
         double pow = 0.0;
 
