@@ -29,6 +29,13 @@ public class WaterfallToGrid {
                     note = noteGrid.LookupNote(Math.pow(10, freq[j]));
                     if (note != null)
                     {
+                        // Note amplitude should switch back to linear space from log space
+                        // Divide the PSD value by 10 to create a more human readable amplitude number
+                        note.amplitude = 0.0;
+                        if (tmp[j] > 0.0)
+                        {
+                            note.amplitude = Math.pow(10, (tmp[j] - 3.0));
+                        }
                         noteGrid.AddOneNote(note, i);
                     }
                 }

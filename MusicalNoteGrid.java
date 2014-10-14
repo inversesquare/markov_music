@@ -1,6 +1,7 @@
 package markov_music;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 // An array of notes over time. Each note is either on or off.
@@ -69,7 +70,7 @@ public class MusicalNoteGrid {
             }
             for (MusicalNote note : goodNotes)
             {
-                addOneFreq(note.frequency, 1.0, chunkTmp, 1.0 / wavSampleRate, deltaTime() * counter);
+                addOneFreq(note.frequency, note.amplitude, chunkTmp, 1.0 / wavSampleRate, deltaTime() * counter);
             }
             System.arraycopy(chunkTmp, 0, waveform, counter * chunkTmp.length, chunkTmp.length);
             counter += 1;
@@ -136,18 +137,71 @@ public class MusicalNoteGrid {
         {
             oneLine = new ArrayList<String>();
             oneLine.add(String.format("%014.4f", time[counter]));
-            for (MusicalNote n : notes)
+            // Handle degenerate case
+            if (goodNotes.size() == 0)
             {
-                if (goodNotes.contains(n))
+                for (MusicalNote n : notes)
                 {
-                    oneLine.add("1");
-                } else {
                     oneLine.add("0");
                 }
+                dw.write(DataWriter.join(oneLine, "\t"));
+                counter += 1;
+                continue;
+            }
+            
+            // Sort the song's notes to compare against the master list of notes
+            Collections.sort(goodNotes);
+            int goodNote_index = 0;
+            MusicalNote test_note = goodNotes.get(0);
+            
+            // Deal with the case where notes may be below the scale
+            if (test_note.frequency < MinNoteFreq())
+            {
+                while (test_note.frequency < MinNoteFreq())
+                {
+                    goodNote_index += 1;
+                    if (goodNote_index < goodNotes.size())
+                    {
+                        test_note = goodNotes.get(goodNote_index);
+                    } else {
+                        break;
+                    }
+                }
+            }
+            
+            for (MusicalNote n : notes)
+            {
+                // Note is off the scale - move on
+                if (goodNote_index >= goodNotes.size())
+                {
+                    oneLine.add("0");
+                    continue;
+                }
+                
+                // Found a matching note
+                if (test_note.frequency == n.frequency)
+                {
+                    oneLine.add(String.format("%014.4f", test_note.amplitude));
+                    goodNote_index += 1;
+                    // Don't run off the end
+                    if (goodNote_index >= goodNotes.size())
+                    {
+                        continue;
+                    }
+                    test_note = goodNotes.get(goodNote_index);
+                    continue;
+                }
+                
+                oneLine.add("0");
             }
             dw.write(DataWriter.join(oneLine, "\t"));
             counter += 1;
         }
+    }
+    
+    private double MinNoteFreq()
+    {
+        return notes.get(0).frequency;
     }
     
     // XXX TODO: make these a static list somewhere
@@ -156,7 +210,7 @@ public class MusicalNoteGrid {
         notes = new ArrayList<MusicalNote>();
 
         // Lowest and highest octaves aren't really helpful for this application
-        /*
+
         notes.add(new MusicalNote(32.70, "C", 1, ""));
         notes.add(new MusicalNote(34.65, "D", 1, "b"));
         notes.add(new MusicalNote(36.71, "D", 1, ""));
@@ -169,7 +223,7 @@ public class MusicalNoteGrid {
         notes.add(new MusicalNote(55.0, "A", 1, ""));
         notes.add(new MusicalNote(58.27, "B", 1, "b"));
         notes.add(new MusicalNote(61.74, "B", 1, ""));
-        */
+
         notes.add(new MusicalNote(65.41, "C", 2, ""));
         notes.add(new MusicalNote(69.30, "D", 2, "b"));
         notes.add(new MusicalNote(73.42, "D", 2, ""));
@@ -248,7 +302,6 @@ public class MusicalNoteGrid {
         notes.add(new MusicalNote(3729.31, "B", 7, "b"));
         notes.add(new MusicalNote(3951.07, "B", 7, ""));
 
-        /*
         notes.add(new MusicalNote(4186.01, "C", 8, ""));
         notes.add(new MusicalNote(4434.92, "D", 8, "b"));
         notes.add(new MusicalNote(4698.63, "D", 8, ""));
@@ -261,7 +314,7 @@ public class MusicalNoteGrid {
         notes.add(new MusicalNote(7040.0, "A", 8, ""));
         notes.add(new MusicalNote(7458.62, "B", 8, "b"));
         notes.add(new MusicalNote(7902.13, "B", 8, ""));
-        */
+
     }
 
 }

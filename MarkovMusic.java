@@ -15,6 +15,7 @@ public class MarkovMusic {
 //  String file_in = input_path + "Handel - Water Music Suite.mp3";
 //  String file_in = input_path + "dragostea.mp3";
     private static String file_in = input_path + "let_it_go.mp3";
+//    private static String file_in = input_path + "fools_rush_in.mp3";
     private static String log_file = output_path + "log.txt";
     private static String data_file = output_path + "fft.txt";
     private static String image_file = output_path + "waterfall.jpg";
@@ -26,8 +27,8 @@ public class MarkovMusic {
     
     private static int chunkSize = 8192; // 8192 - number of 44kHz samples per FFT. 8192 / 44100 = 0.19 seconds
     private static int num_freq_log = 1280; // 1280 - number of frequency bins in log space
-    private static double freq_min = 110.0; // 110.0 - minimum frequency to look for
-    private static double freq_max = 2000.0; // 2000.0 - maximum frequency to look for
+    private static double freq_min = 55.0; // 110.0 - minimum frequency to look for
+    private static double freq_max = 3000.0; // 2000.0 - maximum frequency to look for
     private static double num_stddev = 0.8;  // 1.5 - threshold for detecting notes: number of standard deviations above the mean
 
     public static void main(String[] args) {
