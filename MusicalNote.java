@@ -1,5 +1,7 @@
 package markov_music;
 
+// XXX - include amplitude?
+
 public class MusicalNote {
     public double frequency;
     public String name;

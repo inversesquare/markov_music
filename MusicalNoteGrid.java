@@ -3,66 +3,37 @@ package markov_music;
 import java.util.ArrayList;
 import java.util.List;
 
-public class WaterfallNotes {
-    private String notes_file_out;
-    private PowerSpectrumWaterfall psw;
-    private LogWriter log;
-    
+// An array of notes over time. Each note is either on or off.
+
+public class MusicalNoteGrid {
     private int width; // width - number of chunks
     private List<MusicalNote> notes;
     private List<List<MusicalNote>> recordedNotes;
+    private double [] time;
     
-    public WaterfallNotes(
-            PowerSpectrumWaterfall psw_in,
-            String file_path_out,
-            LogWriter log_in
-            )
+    public MusicalNoteGrid(int num_chunks, double [] time_in)
     {
+        width = num_chunks;
+        time = time_in.clone();
         LoadNotes();
-        psw = psw_in;
-        log = log_in;
-        width = psw.GetNumChunks();
-        notes_file_out = file_path_out;
-        
         recordedNotes = new ArrayList<List<MusicalNote>>(width);
-        
-        PopulateNotes();
-        WriteNotes();
-    }
-    
-    
-    private void PopulateNotes()
-    {
-        double median = psw.GetMedianLogPower();
-        double stddev = psw.GetStdDevLogPower();
-        double [] tmp;
-        double [] freq = psw.GetLogFrequency();
-        List<MusicalNote> goodNotes = null;
-        MusicalNote note = null;
-        
         for (int i = 0; i < width; i++)
         {
-            tmp = psw.GetOneLogSpectra(i);
-            goodNotes = new ArrayList<MusicalNote>();
-            for (int j = 0; j < tmp.length; j++)
-            {
-                // Threshold for being considered a real note in the song
-                if (tmp[j] > (median + (1.5 * stddev)))
-                {
-                    // XXX - this could be a simple calculation, not an O(N) lookup
-                    note = LookupNote(Math.pow(10, freq[j]));
-                    if (note != null)
-                    {
-                        goodNotes.add(note);
-                    }
-                }
-            }
-            
-            recordedNotes.add(goodNotes);
+            recordedNotes.add(new ArrayList<MusicalNote>());
         }
     }
     
-    private MusicalNote LookupNote(double freq)
+    public void AddOneNote(MusicalNote n, int chunkNum)
+    {
+        recordedNotes.get(chunkNum).add(n);
+    }
+    
+    public List<MusicalNote> GetNotes()
+    {
+        return notes;
+    }
+    
+    public MusicalNote LookupNote(double freq)
     {
         MusicalNote ret = null;
         
@@ -80,7 +51,76 @@ public class WaterfallNotes {
         return ret;
     }
     
-    private void WriteNotes()
+    // Write the note grid out to a waveform
+    private final double wavSampleRate = 44100.0;
+    public double[] GenerateWaveform()
+    {
+        int num_ticks = (int)(wavSampleRate * totalTime());
+        double [] waveform = new double [num_ticks];
+        // Holds the waveform for each grid timestep
+        double [] chunkTmp = new double[(int)(deltaTime() * wavSampleRate)];
+        int counter = 0;
+        for (List<MusicalNote> goodNotes : recordedNotes)
+        {
+            // Reset the temp storage
+            for (int i = 0; i < chunkTmp.length; i++)
+            {
+                chunkTmp[i] = 0.0;
+            }
+            for (MusicalNote note : goodNotes)
+            {
+                addOneFreq(note.frequency, 1.0, chunkTmp, 1.0 / wavSampleRate, deltaTime() * counter);
+            }
+            System.arraycopy(chunkTmp, 0, waveform, counter * chunkTmp.length, chunkTmp.length);
+            counter += 1;
+        }
+        
+        // Now normalize the waveform to +/- 1.0
+        double max = 0.0;
+        for (int i = 0; i < waveform.length; i++)
+        {
+            if (Math.abs(waveform[i]) > max)
+            {
+                max = Math.abs(waveform[i]);
+            }
+        }
+        
+        for (int i = 0; i < waveform.length; i++)
+        {
+            waveform[i] /= max;
+        }
+        
+        return waveform;
+    }
+    
+    private double totalTime()
+    {
+        return deltaTime() * time.length;
+    }
+    
+    private double deltaTime()
+    {
+        return (time[1] - time[0]);
+    }
+    
+    private static void addOneFreq(
+            double freq,
+            double amp,
+            double [] tmp,
+            double dt,
+            double t
+            )
+    {
+        // Keep the phase consistent for each note
+        double phase = 2.0 * Math.PI * freq * t;
+        double twoPIfDT = 2.0 * Math.PI * freq * dt;
+        for (int i = 0; i < tmp.length; i++)
+        {
+            tmp[i] += amp * Math.sin((twoPIfDT * i) + phase);
+        }
+    }
+    
+    public void WriteNotes(String notes_file_out)
     {
         List<String> headers = new ArrayList<String>();
         headers.add("Time");
@@ -91,7 +131,6 @@ public class WaterfallNotes {
         DataWriter dw = new DataWriter(notes_file_out, headers);
         
         int counter = 0;
-        double[] time = psw.GetTime();
         List<String> oneLine = null;
         for (List<MusicalNote> goodNotes : recordedNotes)
         {
@@ -111,6 +150,7 @@ public class WaterfallNotes {
         }
     }
     
+    // XXX TODO: make these a static list somewhere
     private void LoadNotes()
     {
         notes = new ArrayList<MusicalNote>();
@@ -223,4 +263,5 @@ public class WaterfallNotes {
         notes.add(new MusicalNote(7902.13, "B", 8, ""));
         */
     }
+
 }

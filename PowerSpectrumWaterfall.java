@@ -271,6 +271,16 @@ public class PowerSpectrumWaterfall {
         return num_chunks;
     }
     
+    public double GetTotalTime()
+    {
+        return (time[1] - time[0]) * num_chunks;
+    }
+    
+    public double GetChunkTime()
+    {
+        return time[1] - time[0];
+    }
+    
     public double[] GetOneSpectra(int i)
     {
         return spectra[i].clone();

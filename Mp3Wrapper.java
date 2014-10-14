@@ -156,6 +156,16 @@ public class Mp3Wrapper {
         return _data_right;
     }
     
+    public short[] data_both()
+    {
+        short[] tmp = new short[_data_left.length];
+        for (int i = 0; i < _data_left.length; i++)
+        {
+            tmp[i] = (short)((_data_left[i] + _data_right[i]) / 2);
+        }
+        return tmp;
+    }
+    
     public int size()
     {
         return _data_left.length;
