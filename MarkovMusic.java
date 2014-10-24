@@ -30,6 +30,8 @@ public class MarkovMusic {
     private static double freq_min = 55.0; // 110.0 - minimum frequency to look for
     private static double freq_max = 3000.0; // 2000.0 - maximum frequency to look for
     private static double num_stddev = 0.8;  // 1.5 - threshold for detecting notes: number of standard deviations above the mean
+    
+    private static double wavSampleRate = 44100.0; // 44100.0 - sample rate for the output wav file
 
     public static void main(String[] args) {
         log = new LogWriter(log_file);
@@ -52,7 +54,7 @@ public class MarkovMusic {
             WaterfallImage wfi = new WaterfallImage(psw, 1, image_file, log);
             MusicalNoteGrid mng = WaterfallToGrid.WaterfallToNoteGrid(psw, num_stddev);
             mng.WriteNotes(notes_file);
-            double [] waveform = mng.GenerateWaveform();
+            double [] waveform = mng.GenerateWaveform(wavSampleRate);
             WavWrapper.WriteWav(wav_file_out, waveform);
         } catch (Exception ex)
         {
