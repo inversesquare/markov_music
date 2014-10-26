@@ -35,7 +35,6 @@ public class WaterfallToGrid {
                 if (tmp[j] > (median + (num_stddev * stddev)))
                 {
                     // XXX - this could be a simple calculation, not an O(N) lookup
-                    // Maybe we can pigeon-hole the frequency => note mapping
                     MusicalNote note = MusicalNote.LookupNote(Math.pow(10, freq[j]));
                     if (note != null)
                     {
@@ -45,7 +44,7 @@ public class WaterfallToGrid {
                         if (tmp[j] > 0.0)
                         {
                             // Note amplitude should switch back to linear space from log space
-                            // Divide the PSD value by 10 to create a more human readable amplitude number
+                            // Scale back the PSD to create a more human readable amplitude number
                             note.SetAmplitude(Math.pow(10, (tmp[j] - 3.0)));
                         }
                         noteGrid.AddOneNote(note, i);

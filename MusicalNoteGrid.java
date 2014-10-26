@@ -206,6 +206,14 @@ public class MusicalNoteGrid {
                 continue;
             }
             
+            // XXX - This used to be a simple lookup:
+            // Is the current good note in the Set of all good notes?
+            // After introducing amplitude, this doesn't work.
+            // The .equals() test doesn't check for equality because of this.
+            // TODO: split MusicalNote into two classes, one without amplitude
+            // Use the non-amplitude containing class to test for
+            // inclusion in the set of all musical notes
+            
             // Sort the song's notes to compare against the master list of notes
             // The master list is already sorted
             // Why? We need to fill in the valid amplitudes and "0"s in order
