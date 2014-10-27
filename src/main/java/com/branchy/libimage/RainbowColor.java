@@ -1,4 +1,4 @@
-package markov_music;
+package main.java.com.branchy.libimage;
 
 import java.awt.Color;
 

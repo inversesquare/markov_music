@@ -1,8 +1,10 @@
-package markov_music;
+package main.java.com.branchy.libnote;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import main.java.com.branchy.libdata.DataWriter;
 
 /** Used to create a primitive song: Musical notes on a fixed grid.
  *  <p>

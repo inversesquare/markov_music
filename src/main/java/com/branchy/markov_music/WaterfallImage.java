@@ -1,4 +1,4 @@
-package markov_music;
+package main.java.com.branchy.markov_music;
 
 import java.awt.Color;
 import java.awt.image.BufferedImage;
@@ -6,6 +6,10 @@ import java.io.File;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
+
+import main.java.com.branchy.libdata.LogWriter;
+import main.java.com.branchy.libimage.RainbowColor;
+import main.java.com.branchy.libmath.PowerSpectrumWaterfall;
 
 public class WaterfallImage {
     private File file_out;

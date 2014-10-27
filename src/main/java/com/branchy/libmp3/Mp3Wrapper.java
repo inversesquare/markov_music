@@ -1,10 +1,11 @@
-package markov_music;
+package main.java.com.branchy.libmp3;
 
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+import main.java.com.branchy.libdata.LogWriter;
 import javazoom.jl.decoder.Bitstream;
 import javazoom.jl.decoder.BitstreamException;
 import javazoom.jl.decoder.Decoder;

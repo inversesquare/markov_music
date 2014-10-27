@@ -1,4 +1,8 @@
-package markov_music;
+package main.java.com.branchy.markov_music;
+
+import main.java.com.branchy.libmath.PowerSpectrumWaterfall;
+import main.java.com.branchy.libnote.MusicalNote;
+import main.java.com.branchy.libnote.MusicalNoteGrid;
 
 /** Map the notes from a waterfall spectrum into a note grid
  *  

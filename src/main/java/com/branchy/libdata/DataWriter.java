@@ -1,4 +1,4 @@
-package markov_music;
+package main.java.com.branchy.libdata;
 
 import java.util.List;
 

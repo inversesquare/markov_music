@@ -1,7 +1,16 @@
-package markov_music;
+package main.java.com.branchy.markov_music;
 
 import java.awt.Color;
 import java.util.Arrays;
+
+import main.java.com.branchy.libdata.DataWriter;
+import main.java.com.branchy.libdata.LogWriter;
+import main.java.com.branchy.libimage.RainbowColor;
+import main.java.com.branchy.libmath.FastFourierTransform;
+import main.java.com.branchy.libmath.PowerSpectrumWaterfall;
+import main.java.com.branchy.libmp3.Mp3Wrapper;
+import main.java.com.branchy.libmp3.WavWrapper;
+import main.java.com.branchy.libnote.MusicalNoteGrid;
 
 public class MarkovMusic {
     

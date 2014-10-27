@@ -1,4 +1,4 @@
-package markov_music;
+package main.java.com.branchy.libmath;
 
 import java.util.ArrayList;
 import java.util.Collections;

@@ -1,4 +1,4 @@
-package markov_music;
+package main.java.com.branchy.libmp3;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;

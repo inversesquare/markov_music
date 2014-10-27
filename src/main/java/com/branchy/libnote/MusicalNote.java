@@ -1,4 +1,4 @@
-package markov_music;
+package main.java.com.branchy.libnote;
 
 import java.util.ArrayList;
 import java.util.List;
