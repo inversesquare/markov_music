@@ -13,15 +13,58 @@ import javazoom.jl.decoder.DecoderException;
 import javazoom.jl.decoder.Header;
 import javazoom.jl.decoder.SampleBuffer;
 
+/** Reads raw data from a given .mp3 file
+ * <p>
+ * Uses the jlayer library
+ * Example code used from:
+ * http://stackoverflow.com/questions/22114699/decode-mp3-file-with-jlayer-on-android-devices
+ * http://stackoverflow.com/questions/12099114/decoding-mp3-files-with-jlayer
+ *  
+ * @author      Justin Libby <justin.libby @ gmail.com>
+ * @version     1.0
+ * @since       2014-09-12
+ */
+
 public class Mp3Wrapper {
+    /**
+     * Log writer to report errors
+     */
     private LogWriter _log;
+    
+    /**
+     * Data from the left and right channels
+     */
     private short[] _data_left;
     private short[] _data_right;
+    
+    /**
+     * Source .mp3 file name
+     */
     private String _file_name;
+    
+    /**
+     * Maximum number of milliseconds to read
+     */
     private int maxMs;
+    
+    /**
+     * Buffer size. Caller has no choice for now.
+     */
     private static int bufferSize = 4096;
+    
+    /**
+     * Total frame count
+     */
     private int _frameCount;
+    
+    /**
+     * Buffer length from the decoder
+     */
     private int _bufferLength;
+    
+    /**
+     * Sample frequency in Hertz. Caller has no choice, for now.
+     */
     private int _sampleFrequency = 44100;
     
     public Mp3Wrapper(String file_name, LogWriter log, int max_seconds)
@@ -33,6 +76,10 @@ public class Mp3Wrapper {
         _readData();
     }
     
+    /**
+     * Calculate the output size we need to allocate
+     * XXX - do we really need this much duplicate code?
+     */
     private void _allocateData()
     {
         try {
@@ -92,6 +139,9 @@ public class Mp3Wrapper {
         }
     }
     
+    /**
+     * Read out data from the .mp3
+     */
     private void _readData()
     {
         try {
@@ -147,16 +197,25 @@ public class Mp3Wrapper {
         }
     }
     
+    /**
+     * @return   Data from the left channel
+     */
     public short[] data_left()
     {
         return _data_left;
     }
     
+    /**
+     * @return    Data from the right channel
+     */
     public short[] data_right()
     {
         return _data_right;
     }
     
+    /**
+     * @return    Data from both channels averaged together
+     */
     public short[] data_both()
     {
         short[] tmp = new short[_data_left.length];
@@ -167,11 +226,17 @@ public class Mp3Wrapper {
         return tmp;
     }
     
+    /**
+     * @return   Number of samples in the output channels
+     */
     public int size()
     {
         return _data_left.length;
     }
     
+    /**
+     * @return    Sample frequency in Hertz
+     */
     public int sampleFrequency()
     {
         return _sampleFrequency;

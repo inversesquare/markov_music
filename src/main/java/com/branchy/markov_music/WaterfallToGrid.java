@@ -12,6 +12,13 @@ import main.java.com.branchy.libnote.MusicalNoteGrid;
  */
 public class WaterfallToGrid {
 
+    /**
+     * Given a power spectrum grid, try to calculate a note grid of detected notes.
+     * 
+     * @param psw            The source power spectra
+     * @param num_stddev     Threshold of note detection, expressed in number of standard deviations above the median
+     * @return               Calculated note grid
+     */
     public static MusicalNoteGrid WaterfallToNoteGrid(
             PowerSpectrumWaterfall psw,
             double num_stddev

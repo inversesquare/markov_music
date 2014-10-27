@@ -1,7 +1,19 @@
 package main.java.com.branchy.libmath;
 
+/** Implementation of the Fast Fourier Transform
+ * <p>
+ * Taken from "Numerical Recipes in C"
+ * 
+ * @author      Justin Libby <justin.libby @ gmail.com>
+ * @version     1.0
+ * @since       2014-09-12
+ */
+
 public class FastFourierTransform {
     
+    /**
+     * Direction of the transform. Forward to go to frequency space from time space.
+     */
     public static final int FORWARD_TRANSFORM = 1;
     public static final int INVERSE_TRANSFORM = -1;
     
@@ -22,11 +34,21 @@ public class FastFourierTransform {
      * ret[2*N] = imaginary part of frequency == - 1 / (N * delta)
      */
     
+    /**
+     * Perform the transform and return an array of transformed data.
+     * 
+     * @param data    Array of input data
+     * @param isign   Direction of the transform: FORWARD_TRANSFORM or INVERSE_TRANSFORM
+     * @return        The transformed data
+     */
     public static double [] four1(double [] data, int isign)
     {
         if (!IsPowerOfTwo(data.length)) {
             throw new IllegalArgumentException("Input data must be an array with a power of two length.");
         }
+        
+        // What follows is taken from the Numerical Recipes implementation.
+        // Don't touch it.
 
         double [] ret = new double[data.length + 1];
         
@@ -102,6 +124,13 @@ public class FastFourierTransform {
         return ret;
     }
     
+    /**
+     * Helper to swap elements in the array
+     * 
+     * @param data   The array we're swapping
+     * @param i      First index to swap
+     * @param j      Second index to swap
+     */
     private static final void swap(double[] data, int i, int j)
     {
         double tmp = data[i];
@@ -109,6 +138,14 @@ public class FastFourierTransform {
         data[j] = tmp;
     }
     
+    /**
+     * Test if an integer is a power of two.
+     * The FFT does not work on data that isn't presented
+     * in an array whose length is a power of two.
+     * 
+     * @param x   The integer to test
+     * @return    True if the integer is a power of two.
+     */
     public static final boolean IsPowerOfTwo(int x)
     {
         return (x != 0) && ((x & (x - 1)) == 0);
